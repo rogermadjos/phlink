@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="D:/Documents/Work/phlink/sensor/libs/core-3.2.1.jar"/>
 	<classpathentry kind="lib" path="D:/Documents/Work/phlink/sensor/libs/javase-3.2.1.jar"/>
 	<classpathentry kind="lib" path="D:/Documents/Work/phlink/sensor/libs/sqlite-jdbc-3.8.11.2.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/Work/phlink/sensor/libs/json-simple-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

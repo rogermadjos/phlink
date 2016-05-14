@@ -14,6 +14,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 
+import backend.Backend;
 import fare.FareMatrixModel;
 
 public class MainFrame extends JFrame {
@@ -34,6 +35,13 @@ public class MainFrame extends JFrame {
     * Launch the application.
     */
     public static void main(String[] args) {
+    	Backend backend = new Backend();
+    	try {
+			backend.embark("sgFdFFg", "asdasdasdasdasdasd");
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -126,7 +134,7 @@ public class MainFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (e.getActionCommand() == "QR_CODE_ACTIVE") {
-					logger.log(Level.INFO, "QR_CODE_ACTIVE");
+					logger.log(Level.INFO, "QR_CODE_ACTIVE: " + qrDecoder.getData());
 					indicator.setState(Indicator.ACTIVE);
 				}
 			}
