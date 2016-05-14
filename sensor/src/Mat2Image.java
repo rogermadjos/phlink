@@ -1,6 +1,5 @@
 import java.awt.image.BufferedImage;
 import java.util.logging.*;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 

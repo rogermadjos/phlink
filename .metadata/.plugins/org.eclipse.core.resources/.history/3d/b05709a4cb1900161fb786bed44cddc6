@@ -1,5 +1,0 @@
-import javax.swing.JPanel;
-
-public class Indicator extends JPanel {
-	private 
-}

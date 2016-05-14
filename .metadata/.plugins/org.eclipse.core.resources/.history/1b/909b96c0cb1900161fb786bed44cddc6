@@ -1,7 +1,0 @@
-import javax.swing.JPanel;
-
-public class Indicator extends JPanel {
-	public static final int IDLE = 0;
-	public static final int ACTIVE = 2;
-	private int state = Indicator.IDLE
-}
