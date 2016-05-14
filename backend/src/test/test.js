@@ -230,5 +230,10 @@ describe( 'API Tests', function() {
           ) );
       } );
     } );
+    describe( 'Given credentials is invalid', function() {
+      it( 'should give an error', function*() {
+        
+      } );
+    } );
   } );
 } );
