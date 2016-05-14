@@ -14,8 +14,7 @@ class Ticket extends Model {
    * @param {String} opts.ticketId
    * @param {String} opts.transactionId
    * @param {Object} opts.location
-   * @param {Number} [opts.ticketAmount]
-   * @param {Number} [opts.trnansactionAmount]
+   * @param {Number} [opts.amount]
    **/
   *create( opts ) {
     let { long, lat } = opts.location;
@@ -48,6 +47,7 @@ class Ticket extends Model {
     return yield this.create( Object.assign( { state: 'embark' }, opts ) );
   }
 
+  
   /**
    * Creates a ticket with disembark state, and deducts the
    * @param {String} opts.userId

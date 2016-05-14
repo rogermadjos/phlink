@@ -14,6 +14,13 @@ let app = koa(),
   Tokens = global.Tokens = { },
   sensorKey = 'ign0q-RD2N9-g7TUc-LR6pI'
 
+function* isValidSensorKey( next ) {
+  if ( this.request.query.key === sensorKey ) {
+    return yield next;
+  }
+  throw new APIError( 'INVALID_FIELDS', 'Invalid fields', 400 );
+}
+
 app.use( function* errorHandler( next ) {
   try {
     yield next;
@@ -44,6 +51,7 @@ router.get(
   '/user/auth/test',
   UserConfig.policies.isLoggedIn,
   function*() {
+    this.status = 200;
   }
 );
 
@@ -53,7 +61,7 @@ router.post(
     let { email, password } =
     this.request.body;
     if ( !email || !password ) {
-      return new APIError( 'INVALID_FIELDS', 'Invalid fields', 400 );
+      throw new APIError( 'INVALID_FIELDS', 'Invalid fields', 400 );
     }
     let user = yield UserModel.getUserByCredentials( email, password );
     if ( !user ) {
@@ -81,6 +89,7 @@ router.get(
   UserConfig.policies.isLoggedIn,
   function*() {
     let { limit, offset } = this.request.query;
+
     this.body = yield TransactionModel.getTransactionsById(
       this.params.userId, limit, offset
     );
@@ -94,6 +103,27 @@ router.delete(
     if ( Tokens[ token ] ) {
       delete Tokens[ token ];
     }
+  }
+);
+
+router.put(
+  '/user/:userId/transaction/:transactionId',
+  isValidSensorKey,
+  function*() {
+    let type = this.request.query.type;
+    if ( !type ) {
+      throw new APIError( 'INVALID_FIELDS', 'Invalid fields.', 400 );
+    }
+
+    type = type ? type.toLowerCase() : type;
+    if ( [ 'embark', 'topup' ].indexOf( type ) === -1 ) {
+      throw new APIError( 'INVALID_FIELDS', 'Invalid fields.', 400 );
+    }
+    let { userId, transactionId } = this.params;
+    yield TransactionModel.create(
+      Object.assign( { type, userId, transactionId }, this.request.body )
+    );
+    this.status = 200;
   }
 );
 

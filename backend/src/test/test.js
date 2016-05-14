@@ -31,9 +31,11 @@ let expect = chai.expect,
     hash: Promise.promisify( bcrypt.hash ),
     compare: Promise.promisify( bcrypt.compare )
   },
-  userCode = randToken.generate.bind( null, 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890' );
+  userCode = randToken.generate.bind( null, 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890' ),
+  sensorKey = 'ign0q-RD2N9-g7TUc-LR6pI';
 chai.should();
 chai.use( chaiThings );
+
 function *assertLogin( opts ) {
   opts = Object.assign( {
     code: 200,
@@ -164,8 +166,8 @@ describe( 'API Tests', function() {
         token = yield assertLogin( user );
         yield [ 100, 50, 20 ].map( amount =>
           pool.queryAsync(
-            'INSERT INTO transactions(id, userId, amount) VALUES(?,?,?)',
-            [ userCode(), user.id, amount ]
+            'INSERT INTO transactions(id, userId, amount, type) VALUES(?,?,?,?)',
+            [ userCode(), user.id, amount, 'topup' ]
           )
         );
       } );
@@ -209,8 +211,8 @@ describe( 'API Tests', function() {
       token = yield assertLogin( user );
       yield [ 100, 50, 20 ].map( amount =>
         pool.queryAsync(
-          'INSERT INTO transactions(id, userId, amount) VALUES(?,?,?)',
-          [ userCode(), user.id, amount ]
+          'INSERT INTO transactions(id, userId, amount, type) VALUES(?,?,?,?)',
+          [ userCode(), user.id, amount, 'topup' ]
         )
       );
     } );
@@ -230,9 +232,38 @@ describe( 'API Tests', function() {
           ) );
       } );
     } );
-    describe( 'Given credentials is invalid', function() {
-      it( 'should give an error', function*() {
-        
+    describe( 'Sensor', function() {
+      describe( 'Given sensor key is invalid', function() {
+        it( 'should give an error', function*() {
+          yield request
+            .put( `/user/${ user.id }/transaction/123-abcd-456-efgh?type=embark&key=123` )
+            .send( {
+              ticketId: '1s23-93to-23hn3'
+            } )
+            .expect( 400 )
+            .expect( res =>
+              expect( res.body ).to.have.property( 'code', 'INVALID_FIELDS' )
+            );
+        } );
+      } );
+      describe( 'Given sensory key is valid', function() {
+        describe( 'Given transactionId does not exists and ticketId', function() {
+          let transactionId = '123-abcd-456-efgh',
+            ticketId = 'aoeu-123-stoet-987'
+          before( function*() {
+            yield pool.queryAsync( 'DELETE FROM transactions WHERE 1' );
+          } );
+          it( 'should be able to add a new transaction record', function*() {
+            yield request
+              .put( `/user/${ user.id }/transaction/${ transactionId }?key=${ sensorKey }&type=embark` )
+              .send( {
+                ticketId,
+                fareId: 1
+              } )
+              .expect( 200 )
+              .end();
+          } );
+        } );
       } );
     } );
   } );
