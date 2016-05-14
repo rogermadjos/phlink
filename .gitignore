@@ -8,3 +8,7 @@ backend/routes/
 backend/util/
 backend/index.js
 backend/test
+
+*.class
+.metadata
+.recommenders
