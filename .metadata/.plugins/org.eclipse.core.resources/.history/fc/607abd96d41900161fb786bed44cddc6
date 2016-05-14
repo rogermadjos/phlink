@@ -1,0 +1,56 @@
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.swing.JPanel;
+
+public class Indicator extends JPanel {
+	public static final int IDLE = 0;
+	public static final int AWARE = 1;
+	public static final int ACTIVE = 2;
+	private Dimension PANEL_SIZE = new Dimension(480, 480);
+	private final Logger logger = Logger.getLogger(Indicator.class.getName());
+	private int state;
+	
+	public Indicator() {
+		super();
+		logger.setLevel(Level.INFO);
+		setPreferredSize(PANEL_SIZE);
+		setState(IDLE);
+	}
+	
+	@Override
+    public void paint(Graphics g){
+		Color color;
+		switch (state) {
+		case IDLE:
+			color = Color.RED;
+			break;
+		case AWARE:
+			color = Color.YELLOW;
+			break;
+		case ACTIVE:
+			color = Color.GREEN;
+			break;
+		default:
+			color = Color.RED;
+			break;
+		}
+        
+        g.setColor(color);
+        int radius = (int) (PANEL_SIZE.width * 0.5);
+        g.fillOval(PANEL_SIZE.width / 2 - radius, PANEL_SIZE.height / 2 - radius,
+        		PANEL_SIZE.width / 2 + radius, PANEL_SIZE.height / 2 + radius);
+    } 
+	
+	public void setState(int state) {
+		this.state = state;
+		repaint();
+	}
+	
+	public int getState() {
+		return state;
+	}
+}

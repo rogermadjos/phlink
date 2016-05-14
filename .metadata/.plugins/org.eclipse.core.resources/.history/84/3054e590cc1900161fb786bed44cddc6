@@ -1,0 +1,28 @@
+import javax.swing.JPanel;
+
+public class Indicator extends JPanel {
+	public static final int IDLE = 0;
+	public static final int AWARE = 1;
+	public static final int ACTIVE = 2;
+	private int state;
+	
+	public Indicator() {
+		setState(IDLE);
+	}
+	
+	public void setState(int state) {
+		this.state = state;
+		switch (state) {
+		case value:
+			
+			break;
+
+		default:
+			break;
+		}
+	}
+	
+	public int getState() {
+		return state;
+	}
+}

@@ -1,0 +1,6 @@
+
+public class VideoPanel {
+	public VideoPanel() {
+		// TODO Auto-generated constructor stub
+	}
+}

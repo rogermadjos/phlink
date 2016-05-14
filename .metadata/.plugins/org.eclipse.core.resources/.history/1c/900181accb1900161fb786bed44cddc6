@@ -1,0 +1,6 @@
+import javax.swing.JPanel;
+
+public class Indicator extends JPanel {
+	public static final int 
+	private int state = 
+}

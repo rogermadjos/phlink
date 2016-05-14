@@ -1,0 +1,42 @@
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.JPanel;
+
+public class Indicator extends JPanel {
+	public static final int IDLE = 0;
+	public static final int AWARE = 1;
+	public static final int ACTIVE = 2;
+	private int state;
+	
+	public Indicator() {
+		setPreferredSize(new Dimension(arg0, arg1));
+		setState(IDLE);
+	}
+	
+	public void setState(int state) {
+		this.state = state;
+		
+		Color color;
+		switch (state) {
+		case IDLE:
+			color = Color.RED;
+			break;
+		case AWARE:
+			color = Color.YELLOW;
+			break;
+		case ACTIVE:
+			color = Color.GREEN;
+			break;
+		default:
+			color = Color.RED;
+			break;
+		}
+		
+		setBackground(color);
+	}
+	
+	public int getState() {
+		return state;
+	}
+}

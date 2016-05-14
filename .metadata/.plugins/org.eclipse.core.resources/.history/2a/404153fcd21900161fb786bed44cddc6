@@ -1,0 +1,15 @@
+import java.awt.Graphics;
+
+import javax.swing.JPanel;
+
+public class VideoPanel extends JPanel{
+	public VideoPanel() {
+		super();
+	}
+	
+	@Override
+	public void paint(Graphics g) {
+		// TODO Auto-generated method stub
+		super.paint(g);
+	}
+}
