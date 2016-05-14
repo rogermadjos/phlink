@@ -9,6 +9,7 @@ import Promise    from 'bluebird';
 import bcrypt     from 'bcryptjs';
 import randToken  from 'rand-token';
 import mysql      from 'mysql';
+import chaiThings from 'chai-things';
 
 /**
   * Patch default Pool and Connection prototype of the mysql
@@ -31,32 +32,31 @@ let expect = chai.expect,
     compare: Promise.promisify( bcrypt.compare )
   },
   userCode = randToken.generate.bind( null, 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890' );
+chai.should();
+chai.use( chaiThings );
+function *assertLogin( opts ) {
+  opts = Object.assign( {
+    code: 200,
+    error: null,
+    assert: true
+  }, opts );
+  let token = null;
+  yield request
+    .post( '/user/auth' )
+    .send( { email: opts.email, password: opts.password } )
+    .expect( opts.code )
+    .expect( res => {
+      if ( opts.error !== null ) {
+        expect( res.body ).to.have.property( 'code', opts.error );
+      }
 
-
-describe( 'User', function() {
-  function *assertLogin( opts ) {
-    opts = Object.assign( {
-      code: 200,
-      error: null,
-      assert: true
-    }, opts );
-    let token = null;
-    yield request
-      .post( '/user/auth' )
-      .send( { email: opts.email, password: opts.password } )
-      .expect( opts.code )
-      .expect( res => {
-        if ( opts.error !== null ) {
-          expect( res.body ).to.have.property( 'code', opts.error );
-        }
-
-        if ( opts.assert ) {
-          expect( res.body ).to.have.property( 'token' ).that.is.a( 'string' );
-          token = res.body.token;
-        }
-      } );
-    return token;
-  }
+      if ( opts.assert ) {
+        expect( res.body ).to.have.property( 'token' ).that.is.a( 'string' );
+        token = res.body.token;
+      }
+    } );
+  return token;
+}
 
   function *createUser( opts ) {
     let hash = yield crypt.hash( opts.password, 10 );
@@ -65,92 +65,93 @@ describe( 'User', function() {
       [ opts.id, opts.email, hash ]
     );
   }
+describe( 'API Tests', function() {
+  describe( 'User', function() {
+    describe( 'Authentication', function () {
+      afterEach( function*() {
+        yield pool.queryAsync( 'DELETE FROM users WHERE 1' );
+      } );
 
-  describe( 'Authentication', function () {
-    afterEach( function*() {
-      yield pool.queryAsync( 'DELETE FROM users WHERE 1' );
-    } );
+      describe( 'Given user does not exists', function() {
+        it( 'should give an error user not found', function*() {
+          yield assertLogin( {
+            email: 'djansyle',
+            password: 'password',
+            code: 404,
+            error: 'USER_NOT_FOUND',
+            assert: false
+          } );
+        } );
+      } );
 
-    describe( 'Given user does not exists', function() {
-      it( 'should give an error user not found', function*() {
-        yield assertLogin( {
-          email: 'djansyle',
-          password: 'password',
-          code: 404,
-          error: 'USER_NOT_FOUND',
-          assert: false
+      describe( 'Given account exists but wrong password', function() {
+        let id = randToken.generate(8),
+          email = 'test@gmail.com';
+
+        before( function*() {
+          yield createUser( { id, email, password: 'password' } );
+        } );
+
+        it( 'should give an error user not found', function*() {
+          yield assertLogin( {
+            email: 'test@gmail.com',
+            password: 'wrongpassword',
+            code: 404,
+            error: 'USER_NOT_FOUND',
+            assert: false
+          } );
+        } );
+      } );
+
+      describe( 'Given correct credentials', function() {
+        let id = randToken.generate(8),
+          email = 'testing@gmail.com',
+          password = 'password';
+
+        before( function*() {
+          yield createUser( { id, email, password } );
+        } );
+
+        it( 'should be able to login', function*() {
+          let token = yield assertLogin( {
+            email,
+            password,
+            code: 200,
+            assert: true
+          } );
+
+          yield request
+            .get( `/user/auth/test?token=${ token }` )
+            .expect( 200 )
+            .end();
         } );
       } );
     } );
 
-    describe( 'Given account exists but wrong password', function() {
-      let id = randToken.generate(8),
-        email = 'test@gmail.com';
+    describe( 'Creation', function() {
+      describe( 'Given all fields are valid', function() {
+        it( 'should be able to create new user', function*() {
+          yield request
+            .post( '/user' )
+            .send( { email: 'djansyle', password: 'passy' } )
+            .expect( 200 )
+            .end();
 
-      before( function*() {
-        yield createUser( { id, email, password: 'password' } );
-      } );
+          let res = yield pool.queryAsync(
+            'SELECT COUNT(*) as count FROM users WHERE email = ?',
+            [ 'djansyle' ]
+          );
 
-      it( 'should give an error user not found', function*() {
-        yield assertLogin( {
-          email: 'test@gmail.com',
-          password: 'wrongpassword',
-          code: 404,
-          error: 'USER_NOT_FOUND',
-          assert: false
+          expect( res ).to.have.length( 1 );
         } );
       } );
     } );
 
-    describe( 'Given correct credentials', function() {
-      let id = randToken.generate(8),
-        email = 'testing@gmail.com',
-        password = 'password';
-
-      before( function*() {
-        yield createUser( { id, email, password } );
+    describe( 'Information', function() {
+      after( function*() {
+        yield pool.queryAsync( 'DELETE FROM transactions WHERE 1' );
       } );
 
-      it( 'should be able to login', function*() {
-        let token = yield assertLogin( {
-          email,
-          password,
-          code: 200,
-          assert: true
-        } );
-
-        yield request
-          .get( `/user/auth/test?token=${ token }` )
-          .expect( 200 )
-          .end();
-      } );
-    } );
-  } );
-
-  describe( 'Creation', function() {
-    describe( 'Given all fields are valid', function() {
-      it( 'should be able to create new user', function*() {
-        yield request
-          .post( '/user' )
-          .send( { email: 'djansyle', password: 'passy' } )
-          .expect( 200 )
-          .end();
-
-        let res = yield pool.queryAsync(
-          'SELECT COUNT(*) as count FROM users WHERE email = ?',
-          [ 'djansyle' ]
-        );
-
-        expect( res ).to.have.length( 1 );
-      } );
-    } );
-  } );
-
-  describe( 'Information', function() {
-    after( function*() {
-      yield pool.queryAsync( 'DELETE FROM transactions WHERE 1' );
-    } );
-    describe( 'Given credentials are correct', function() {
       let token = null,
         user = {
           id: userCode(),
@@ -169,26 +170,64 @@ describe( 'User', function() {
         );
       } );
 
-      it( 'should be able to get all the user information', function*() {
-        yield request
-          .get( `/user?token=${ token }`)
-          .expect( 200 )
-          .expect( res => {
-            expect( res.body ).to.have.property( 'id', user.id );
-            expect( res.body ).to.have.property( 'email', user.email );
-            expect( res.body ).to.have.property( 'balance', 170 );
-          } );
+      describe( 'Given credentials are correct', function() {
+        it( 'should be able to get all the user information', function*() {
+          yield request
+            .get( `/user?token=${ token }`)
+            .expect( 200 )
+            .expect( res => {
+              expect( res.body ).to.have.property( 'id', user.id );
+              expect( res.body ).to.have.property( 'email', user.email );
+              expect( res.body ).to.have.property( 'balance', 170 );
+            } );
+        } );
+      } );
+
+      describe( 'Given credentials is not correct', function() {
+        it( 'should give an error', function*() {
+          yield request
+            .get( '/user?token=aoeu')
+            .expect( 400 )
+            .expect( res =>
+              expect( res.body ).to.have.property( 'code', 'AUTHENTICATION_REQUIRED' )
+            );
+        } );
       } );
     } );
+  } );
 
-    describe( 'Given credentials is not correct', function() {
-      it( 'should give an error', function*() {
+  describe( 'Transactions', function() {
+    let token = null,
+      user = {
+        id: userCode(),
+        email: 'djanyledjans@gmail.com',
+        password: 'password',
+      };
+
+    before( function*() {
+      yield createUser( user );
+      token = yield assertLogin( user );
+      yield [ 100, 50, 20 ].map( amount =>
+        pool.queryAsync(
+          'INSERT INTO transactions(id, userId, amount) VALUES(?,?,?)',
+          [ userCode(), user.id, amount ]
+        )
+      );
+    } );
+
+    after( function*() {
+      yield pool.queryAsync( 'DELETE FROM transactions WHERE 1' );
+    } );
+
+    describe( 'Given has valid credentials', function() {
+      it( 'should be able to get list of transactions', function*() {
         yield request
-          .get( '/user?token=aoeu')
-          .expect( 400 )
+          .get( `/user/${ user.id }/transactions?token=${ token }` )
+          .expect( 200 )
           .expect( res =>
-            expect( res.body ).to.have.property( 'code', 'AUTHENTICATION_REQUIRED' )
-          );
+            [ 100, 50, 20 ].forEach( amount =>
+              res.body.should.include.an.item.with.property( 'amount', amount )
+          ) );
       } );
     } );
   } );

@@ -7,6 +7,7 @@ import randToken      from 'rand-token';
 import { UserModel }  from './model/user';
 import { APIError }   from './util/apiError';
 import { UserConfig } from './routes/user';
+import { TransactionModel } from './model/transaction';
 
 let app = koa(),
   router = Router(),
@@ -43,14 +44,14 @@ router.get(
   '/user/auth/test',
   UserConfig.policies.isLoggedIn,
   function*() {
-    this.status = 200;
   }
 );
 
 router.post(
   '/user/auth',
   function*() {
-    let { email, password } = this.request.body;
+    let { email, password } =
+    this.request.body;
     if ( !email || !password ) {
       return new APIError( 'INVALID_FIELDS', 'Invalid fields', 400 );
     }
@@ -71,11 +72,20 @@ router.get(
   '/user',
   UserConfig.policies.isLoggedIn,
   function*() {
-
     this.body = yield UserModel.getUserById( this.state.user.id );
   }
 )
 
+router.get(
+  '/user/:userId/transactions',
+  UserConfig.policies.isLoggedIn,
+  function*() {
+    let { limit, offset } = this.request.query;
+    this.body = yield TransactionModel.getTransactionsById(
+      this.params.userId, limit, offset
+    );
+  }
+);
 router.delete(
   '/user/auth',
   UserConfig.policies.isLoggedIn,

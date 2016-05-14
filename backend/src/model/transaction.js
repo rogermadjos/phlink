@@ -1,6 +1,6 @@
 'use strict';
 
-import Model from './model';
+import { Model } from './model';
 
 class Transaction extends Model {
   constructor() {
@@ -30,10 +30,18 @@ class Transaction extends Model {
    **/
   *getTransactionsById( userId, limit=100, offset=0 ) {
     return yield this.getRows( `
-      SELECT *
-       FROM transactions
-      WHERE userId = ?
-      ORDER BY createdAt DESC
+      SELECT
+        userId AS userId, t.id AS transactionId,
+        tt.id AS ticketId, t.amount AS amount, ta.state AS state
+
+
+       FROM transactions AS t
+        LEFT JOIN tickets AS tt
+          ON t.id = tt.transactionId
+        LEFT JOIN ticketActivities AS ta
+          ON tt.id = ta.ticketId
+      WHERE t.userId = ?
+      ORDER BY t.createdAt DESC
       LIMIT ? OFFSET ?
     `, [ userId, limit, offset ] );
   }
