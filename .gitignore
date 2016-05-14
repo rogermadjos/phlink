@@ -1,1 +1,10 @@
-*.class
+# Exclude node modules
+node_modules/
+
+# Transpiled source files.
+backend/config/
+backend/model/
+backend/routes/
+backend/util/
+backend/index.js
+backend/test
