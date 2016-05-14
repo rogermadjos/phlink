@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="org.opencv.core.Mat"/>
+<fullyQualifiedTypeName name="org.opencv.core.Core"/>
+<fullyQualifiedTypeName name="org.opencv.videoio.VideoCapture"/>
+<fullyQualifiedTypeName name="java.awt.image.BufferedImage"/>
+<fullyQualifiedTypeName name="javax.swing.GroupLayout"/>
+<fullyQualifiedTypeName name="javax.swing.JPanel"/>
+<fullyQualifiedTypeName name="com.sun.istack.internal.logging.Logger"/>
+<fullyQualifiedTypeName name="java.lang.System"/>
+<fullyQualifiedTypeName name="java.util.logging.Logger"/>
+<fullyQualifiedTypeName name="com.google.zxing.BinaryBitmap"/>
+<fullyQualifiedTypeName name="com.google.zxing.common.HybridBinarizer"/>
+<fullyQualifiedTypeName name="com.google.zxing.RGBLuminanceSource"/>
+<fullyQualifiedTypeName name="com.google.zxing.qrcode.QRCodeReader"/>
+<fullyQualifiedTypeName name="com.google.zxing.Result"/>
+<fullyQualifiedTypeName name="com.google.zxing.NotFoundException"/>
+<fullyQualifiedTypeName name="com.google.zxing.ReaderException"/>
+<fullyQualifiedTypeName name="com.google.zxing.client.j2se.BufferedImageLuminanceSource"/>
+<fullyQualifiedTypeName name="MainFrame.CaptureThread"/>
+<fullyQualifiedTypeName name="QRDecoder"/>
+<fullyQualifiedTypeName name="java.awt.event.ActionListener"/>
+<fullyQualifiedTypeName name="java.awt.event.ActionEvent"/>
+<fullyQualifiedTypeName name="java.awt.event.WindowStateListener"/>
+<fullyQualifiedTypeName name="sun.awt.WindowClosingListener"/>
+<fullyQualifiedTypeName name="java.util.logging.Level"/>
+<fullyQualifiedTypeName name="java.awt.event.WindowListener"/>
+<fullyQualifiedTypeName name="MainFrame.DecodeThread"/>
+<fullyQualifiedTypeName name="java.awt.event.WindowAdapter"/>
+<fullyQualifiedTypeName name="javax.swing.JLabel"/>
+</qualifiedTypeNameHistroy>
