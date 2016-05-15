@@ -24,9 +24,9 @@ class User extends Model {
    **/
   *getUserById( id ) {
     return yield this.getRow( `
-      SELECT u.*, ut.balance AS balance
+      SELECT u.*, IFNULL(ut.balance,0) AS balance
         FROM users AS u
-        JOIN (
+        LEFT JOIN (
           SELECT t.userId, SUM(t.amount) AS balance
             FROM transactions AS t
         ) AS ut

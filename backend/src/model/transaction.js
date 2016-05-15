@@ -17,9 +17,9 @@ class Transaction extends Model {
    **/
   *create( opts ) {
     let fareAmount = null;
-    
+    console.log(opts);
     let user = yield UserModel.getUserById( opts.userId );
-
+    console.log(user);
     if ( opts.fareId ) {
       let fare = ( yield this.query(
         'SELECT fare AS amount FROM fares WHERE id = ? ',

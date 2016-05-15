@@ -216,13 +216,15 @@ public class MainFrame extends JFrame {
 					logger.log(Level.INFO, "QR_CODE_ACTIVE: " + data);
 					
 					Scanner scan = new Scanner(data);
+					scan.useDelimiter(":");
 					String phlinkId = scan.next();
 					String ticketId = scan.next();
 					int fareId = Integer.parseInt(scan.next());
 					
 					String[] destinations = new String[] { "Opol", "El Salvador", "Alubijid", "Laguindingan" };
 					int[] fares = new int[] { 15, 27, 42, 52 };
-					
+					System.out.println(phlinkId);
+					System.out.println(ticketId);
 					labelFour.setText(phlinkId);
 					labelSix.setText(destinations[fareId - 1]);
 					labelEight.setText("\u20B1" + fares[fareId - 1] + "");
