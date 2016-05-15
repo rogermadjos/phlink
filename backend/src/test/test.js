@@ -224,7 +224,7 @@ describe( 'API Tests', function() {
     describe( 'Given has valid credentials', function() {
       it( 'should be able to get list of transactions', function*() {
         yield request
-          .get( `/user/${ user.id }/transactions?token=${ token }` )
+          .get( `/users/${ user.id }/transactions?token=${ token }` )
           .expect( 200 )
           .expect( res =>
             [ 100, 50, 20 ].forEach( amount =>
@@ -236,7 +236,7 @@ describe( 'API Tests', function() {
       describe( 'Given sensor key is invalid', function() {
         it( 'should give an error', function*() {
           yield request
-            .put( `/user/${ user.id }/transaction/123-abcd-456-efgh?type=embark&key=123` )
+            .put( `/users/${ user.id }/transactions/123-abcd-456-efgh?type=embark&key=123` )
             .send( {
               ticketId: '1s23-93to-23hn3'
             } )
@@ -255,7 +255,7 @@ describe( 'API Tests', function() {
           } );
           it( 'should be able to add a new transaction record', function*() {
             yield request
-              .put( `/user/${ user.id }/transaction/${ transactionId }?key=${ sensorKey }&type=embark` )
+              .put( `/users/${ user.id }/transactions/${ transactionId }?key=${ sensorKey }&type=embark` )
               .send( {
                 ticketId,
                 fareId: 1

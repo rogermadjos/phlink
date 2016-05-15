@@ -7,13 +7,15 @@ import java.net.URL;
 import java.util.UUID;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class Backend {
-	public void embark(String phlinkId, String ticketId) throws Exception {
+	public Object embark(String phlinkId, String ticketId, int fareId) throws Exception {
+		final String KEY = "ign0q-RD2N9-g7TUc-LR6pI";
 		String transactionId = UUID.randomUUID().toString();
 		String url = "http://localhost:3000/users/" + phlinkId +
 			"/transactions/" + transactionId +
-			"?type=EMBARK";
+			"?type=embark&key=" + KEY;
 		
 		URL obj = new URL(url);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -24,6 +26,7 @@ public class Backend {
 		
 		json.put("phlinkId", phlinkId);
 		json.put("ticketId", ticketId);
+		json.put("fareId", fareId);
 		String body = json.toJSONString();
 		
 		con.setDoOutput(true);
@@ -33,7 +36,6 @@ public class Backend {
 		wr.close();
 		
 		int responseCode = con.getResponseCode();
-		System.out.println(responseCode);
 		BufferedReader in = new BufferedReader(
 		        new InputStreamReader(con.getInputStream()));
 		String inputLine;
@@ -44,6 +46,8 @@ public class Backend {
 		}
 		in.close();
 		
-		
+		JSONParser parser = new JSONParser();
+		JSONObject jsonObj = (JSONObject)parser.parse(response.toString());
+		return jsonObj.get("balance");
 	}
 }

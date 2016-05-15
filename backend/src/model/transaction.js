@@ -1,6 +1,8 @@
 'use strict';
 
-import { Model } from './model';
+import { UserModel }  from './user';
+import { APIError }   from '../util/apiError';
+import { Model }      from './model';
 
 class Transaction extends Model {
   constructor() {
@@ -15,6 +17,8 @@ class Transaction extends Model {
    **/
   *create( opts ) {
     let fareAmount = null;
+    
+    let user = yield UserModel.getUserById( opts.userId );
 
     if ( opts.fareId ) {
       let fare = ( yield this.query(
@@ -25,15 +29,25 @@ class Transaction extends Model {
         fareAmount = fare.amount;
       }
     }
+    
+    if ( user.balance < fareAmount ) {
+      throw new APIError( 'INSUFFICIENT_BALANCE', 'Insufficient balance.', 400 );
+    }
+    
+    let delta = fareAmount !== null ? -fareAmount : opts.amount;
 
-    let res = yield this.query( `
+    yield this.query( `
         INSERT INTO transactions
           (id, ticketId, userId, fareId, amount, type)
         VALUES (?,?,?,?,?,?)`,
       [ opts.transactionId, opts.ticketId, opts.userId, opts.fareId,
-        fareAmount !== null ? -fareAmount : opts.amount, opts.type  ]
+        delta, opts.type  ]
     );
-    return res;
+
+    return {
+      balance: user.balance + delta,
+      email: user.email
+    };
   }
 
   /**

@@ -10,6 +10,7 @@
     "bluebird": "^3.3.5",
     "koa": "^1.2.0",
     "koa-bodyparser": "^2.1.0",
+    "koa-cors": "0.0.16",
     "koa-router": "^5.4.0",
     "mysql": "^2.10.2",
     "rand-token": "^0.2.1"

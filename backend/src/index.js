@@ -8,6 +8,7 @@ import { UserModel }  from './model/user';
 import { APIError }   from './util/apiError';
 import { UserConfig } from './routes/user';
 import { TransactionModel } from './model/transaction';
+import cors from 'koa-cors';
 
 let app = koa(),
   router = Router(),
@@ -20,6 +21,8 @@ function* isValidSensorKey( next ) {
   }
   throw new APIError( 'INVALID_FIELDS', 'Invalid fields', 400 );
 }
+
+app.use( cors({ methods: 'GET,PUT,POST' }) );
 
 app.use( function* errorHandler( next ) {
   try {
@@ -85,7 +88,7 @@ router.get(
 )
 
 router.get(
-  '/user/:userId/transactions',
+  '/users/:userId/transactions',
   UserConfig.policies.isLoggedIn,
   function*() {
     let { limit, offset } = this.request.query;
@@ -107,20 +110,19 @@ router.delete(
 );
 
 router.put(
-  '/user/:userId/transaction/:transactionId',
+  '/users/:userId/transactions/:transactionId',
   isValidSensorKey,
   function*() {
     let type = this.request.query.type;
     if ( !type ) {
       throw new APIError( 'INVALID_FIELDS', 'Invalid fields.', 400 );
     }
-
     type = type ? type.toLowerCase() : type;
     if ( [ 'embark', 'topup' ].indexOf( type ) === -1 ) {
       throw new APIError( 'INVALID_FIELDS', 'Invalid fields.', 400 );
     }
     let { userId, transactionId } = this.params;
-    yield TransactionModel.create(
+    this.body = yield TransactionModel.create(
       Object.assign( { type, userId, transactionId }, this.request.body )
     );
     this.status = 200;
@@ -136,4 +138,4 @@ router.post(
 
 app.use( router.routes() );
 app.use( router.allowedMethods() );
-global.app = app.listen( 7777 );
+global.app = app.listen( +process.env.HTTP_PORT );

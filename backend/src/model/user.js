@@ -8,7 +8,7 @@ import randToken  from 'rand-token';
 let crypt = {
   hash: Promise.promisify( bcrypt.hash ),
   compare: Promise.promisify( bcrypt.compare )
-}, code = randToken.generate.bind( null, 8, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890' );
+}, code = randToken.generate.bind( null, 8, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890' );
 
 class User extends Model {
   constructor() {

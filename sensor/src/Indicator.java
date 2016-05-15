@@ -10,7 +10,7 @@ import javax.swing.Timer;
 
 public class Indicator extends ImagePanel {
 	public static final int IDLE = 0;
-	public static final int AWARE = 1;
+	public static final int Error = 1;
 	public static final int ACTIVE = 2;
 	private Dimension PANEL_SIZE = new Dimension(480, 480);
 	private final Logger logger = Logger.getLogger(Indicator.class.getName());
@@ -34,8 +34,8 @@ public class Indicator extends ImagePanel {
 		case IDLE:
 			color = Color.ORANGE;
 			break;
-		case AWARE:
-			color = Color.YELLOW;
+		case ERROR:
+			color = Color.RED;
 			break;
 		case ACTIVE:
 			color = Color.GREEN;
@@ -65,6 +65,20 @@ public class Indicator extends ImagePanel {
 			canUpdateState = false;
 			draw();
 			Timer timer = new Timer(2000, new ActionListener() {
+				@Override
+				public synchronized void actionPerformed(ActionEvent e) {
+					self.state = IDLE;
+					self.draw();
+					canUpdateState = true;
+				}
+			});
+			timer.setRepeats(false);
+			timer.start();
+		}
+		if(state == ERROR) {
+			canUpdateState = false;
+			draw();
+			Timer timer = new Timer(1000, new ActionListener() {
 				@Override
 				public synchronized void actionPerformed(ActionEvent e) {
 					self.state = IDLE;
